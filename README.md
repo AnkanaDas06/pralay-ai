@@ -8,6 +8,18 @@ PRALAY AI is a unified geospatial intelligence and emergency operations platform
 
 ---
 
+## 🌐 Live Access & Deployment Links
+
+| Access Channel | Link / Endpoint | Status | Description |
+| :--- | :--- | :--- | :--- |
+| **🌍 Live Public & Mobile Web** | [**Open Live Website**](https://complex-faculty-compounds-guaranteed.trycloudflare.com) | ✅ **Active** | Live operations dashboard accessible on phones, tablets & browsers worldwide. |
+| **🚀 GitHub Pages (Cloud)** | [**GitHub Pages Deployment**](https://ankanadas06.github.io/pralay-ai/) | ⚙️ **CI/CD Ready** | 24/7 cloud hosting powered by GitHub Actions. |
+| **📶 Local Wi-Fi Network** | `http://10.60.155.253:5173` | ✅ **Active on LAN** | Ultra-low latency access on any device on the same local Wi-Fi. |
+| **💻 Localhost** | `http://localhost:5173` | ✅ **Active** | Local development and testing environment. |
+| **📖 Access Documentation** | [**LIVE_ACCESS.md**](file:///C:/Users/HP/.gemini/antigravity/scratch/pralay-ai/LIVE_ACCESS.md) | 📄 **Included** | Full access documentation and troubleshooting guide. |
+
+---
+
 ## ⚡ Quickstart
 
 ### Prerequisites
@@ -111,6 +123,9 @@ $$\text{Risk Score } R = 0.35 \cdot S_{\text{severity}} + 0.25 \cdot M_{\text{co
 
 ```
 pralay-ai/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml            # Automated CI/CD GitHub Pages deployment
 ├── data/
 │   └── pralay_disasters.db       # Persistent SQLite historical disaster store
 ├── public/
@@ -143,6 +158,7 @@ pralay-ai/
 │   ├── App.tsx                   # Main application controller
 │   ├── index.css                 # Command-center styling & Leaflet map theme
 │   └── vite.config.ts            # Vite config with API server middleware
+├── LIVE_ACCESS.md                # Platform access guide, tunnel & Wi-Fi instructions
 ├── tailwind.config.js            # Command-center dark navy color palette
 └── package.json
 ```
