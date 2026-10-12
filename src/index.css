@@ -1,0 +1,184 @@
+@import 'leaflet/dist/leaflet.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#050b1a] text-slate-100 antialiased selection:bg-cyan-500/30 selection:text-cyan-200;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+}
+
+/* Satellite Cyclone Command Center Background */
+.cyclone-command-bg {
+  position: relative;
+  min-height: 100vh;
+  background-color: #050b1a;
+  background-image: 
+    radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 20% 80%, rgba(2, 132, 199, 0.06) 0%, transparent 50%),
+    linear-gradient(180deg, rgba(5, 11, 26, 0.88) 0%, rgba(6, 14, 36, 0.80) 40%, rgba(4, 8, 20, 0.88) 100%),
+    url('/assets/cyclone_satellite_bg.jpg');
+  background-size: cover;
+  background-position: center 25%;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* Subtle satellite vignette glow */
+.cyclone-vignette-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(circle at center, transparent 45%, rgba(2, 6, 18, 0.40) 80%, rgba(2, 6, 18, 0.70) 100%);
+}
+
+/* Translucent glass-style panels */
+.glass-panel {
+  background: rgba(11, 19, 40, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(30, 58, 110, 0.45);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* Custom Scrollbars for Tactical Command Center */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #060b18;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Panel Scrollbar */
+.panel-scrollbar::-webkit-scrollbar-track {
+  background: #081024;
+}
+.panel-scrollbar::-webkit-scrollbar-thumb {
+  background: #1e2e4e;
+  border-radius: 3px;
+}
+.panel-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #283e68;
+}
+
+/* Leaflet Container - Clean Pure White Map Background */
+.leaflet-container {
+  background: #ffffff !important;
+  font-family: inherit !important;
+  outline: none;
+}
+
+/* Base Tile Styling - Natural Crisp Light/White World Map (No Invert Filter) */
+.leaflet-tile {
+  filter: none;
+}
+
+/* High-Contrast Dark Shader (Only active when Dark Mode is explicitly toggled by user in layer switcher) */
+.map-dark-tiles .leaflet-tile {
+  filter: brightness(0.72) invert(1) contrast(3.0) hue-rotate(200deg) saturate(0.35) !important;
+}
+
+/* Natural White/Light World Map Tiles (Default) */
+.map-natural-tiles .leaflet-tile {
+  filter: none !important;
+}
+
+/* Standard OpenStreetMap Tiles */
+.map-osm-tiles .leaflet-tile {
+  filter: none !important;
+}
+
+/* Humanitarian OpenStreetMap Tiles */
+.map-hot-tiles .leaflet-tile {
+  filter: brightness(0.96) contrast(1.04) !important;
+}
+
+/* Satellite Aerial Imagery Tiles */
+.map-satellite-tiles .leaflet-tile {
+  filter: none !important;
+}
+
+/* Leaflet Popups - High Contrast Clean White Tactical Card */
+.leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.45) !important;
+}
+
+.leaflet-popup-tip {
+  background: #ffffff !important;
+}
+
+/* Zoom Controls on Map */
+.leaflet-control-zoom {
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.leaflet-control-zoom a {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  font-weight: bold !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: #f1f5f9 !important;
+  color: #2563eb !important;
+}
+
+/* Attribution Bar */
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #475569 !important;
+  font-size: 10px !important;
+  padding: 2px 8px !important;
+  border-top-left-radius: 6px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(203, 213, 225, 0.8);
+}
+
+.leaflet-control-attribution a {
+  color: #2563eb !important;
+  text-decoration: none;
+}
+
+.leaflet-control-attribution a:hover {
+  text-decoration: underline;
+}
+
+/* Radar Pulse Animations for High Severity Incidents */
+@keyframes radar-ping {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.radar-ring {
+  animation: radar-ping 2.2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
