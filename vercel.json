@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/disasters/historical-stats",
+      "destination": "/api/historical-stats.js"
+    },
+    {
+      "source": "/api/disasters",
+      "destination": "/api/disasters.js"
+    },
+    {
+      "source": "/((?!api/.*).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -12,7 +12,8 @@ import {
   ChevronRight,
   Radio,
   History,
-  Database
+  Database,
+  ShieldCheck
 } from 'lucide-react';
 
 export type ActiveTab = 
@@ -23,6 +24,7 @@ export type ActiveTab =
   | 'risk'
   | 'india'
   | 'resources'
+  | 'audit'
   | 'sources'
   | 'settings';
 
@@ -86,6 +88,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       id: 'resources' as ActiveTab,
       label: 'Emergency Directory',
       icon: LifeBuoy,
+    },
+    {
+      id: 'audit' as ActiveTab,
+      label: 'Data Accuracy Audit',
+      icon: ShieldCheck,
+      badge: 'Audited',
+      badgeColor: 'bg-emerald-950/60 text-emerald-300 border border-emerald-800/80',
     },
     {
       id: 'sources' as ActiveTab,

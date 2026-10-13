@@ -12,11 +12,11 @@ PRALAY AI is a unified geospatial intelligence and emergency operations platform
 
 | Access Channel | Link / Endpoint | Status | Description |
 | :--- | :--- | :--- | :--- |
-| **🌍 Live Public & Mobile Web** | [**Open Live Website**](https://complex-faculty-compounds-guaranteed.trycloudflare.com) | ✅ **Active** | Live operations dashboard accessible on phones, tablets & browsers worldwide. |
+| **⚡ Live Production (Vercel)** | [**pralay-ai.vercel.app**](https://pralay-ai.vercel.app/) | ✅ **Audited & Active** | Primary official production deployment with client-side CORS telemetry & fallback. |
 | **🚀 GitHub Pages (Cloud)** | [**GitHub Pages Deployment**](https://ankanadas06.github.io/pralay-ai/) | ⚙️ **CI/CD Ready** | 24/7 cloud hosting powered by GitHub Actions. |
 | **📶 Local Wi-Fi Network** | `http://10.60.155.253:5173` | ✅ **Active on LAN** | Ultra-low latency access on any device on the same local Wi-Fi. |
-| **💻 Localhost** | `http://localhost:5173` | ✅ **Active** | Local development and testing environment. |
-| **📖 Access Documentation** | [**LIVE_ACCESS.md**](file:///C:/Users/HP/.gemini/antigravity/scratch/pralay-ai/LIVE_ACCESS.md) | 📄 **Included** | Full access documentation and troubleshooting guide. |
+| **💻 Localhost** | `http://localhost:5173` | ✅ **Active** | Local development and testing environment with SQLite backend. |
+| **🛡️ Scientific Audit Report** | Inside App (`/` -> `Data Accuracy Audit` tab) | ✅ **Audited v2.4** | Full academic review answering questions on prediction claims & data provenance. |
 
 ---
 
@@ -110,12 +110,33 @@ $$\text{Risk Score } R = 0.35 \cdot S_{\text{severity}} + 0.25 \cdot M_{\text{co
 
 ---
 
-## 🏛️ Scientific Integrity & Disclaimers
+## 🏛️ Scientific Integrity, Epistemic Boundaries & Academic Audit
 
+### 1. Epistemic Boundary on Earthquake Prediction
 > [!IMPORTANT]
-> **No Spurious Predictions**: Science cannot deterministically predict the exact date, time, and epicenter of an earthquake. PRALAY AI reports observed seismological events and historical vulnerability classifications.
->
-> **Public Emergency Notice**: PRALAY AI is a hackathon prototype designed for situational awareness. In active life-threatening emergencies, always follow instructions issued by local municipal emergency services, police, and national civil protection agencies (NDMA/IMD).
+> **Deterministic Earthquake Prediction is Scientifically Impossible**: According to the international seismological consensus (USGS, IASPEI, and National Earthquake Information Center), no scientific methodology or sensor array can predict the exact timing, location, and magnitude of an earthquake prior to rupture.
+> 
+> PRALAY AI **never claims to predict earthquakes**. Earthquakes displayed on the platform are **post-rupture physical sensor observations** fetched live from the USGS Global Seismographic Network.
+
+### 2. Multi-Hazard Risk Scoring (P-MHRS v2.4 Formulation)
+The PRALAY composite risk score is an empirical, transparent decision-support heuristic, **not a black-box speculative model**:
+$$R = 0.35 \cdot S_{\text{severity}} + 0.25 \cdot C_{\text{compound}} + 0.25 \cdot E_{\text{exposure}} + 0.15 \cdot M_{\text{meteo}}$$
+- Evaluates active physical measurements, multi-hazard concurrence within 150 km, geomorphic demographic exposure, and ambient meteorology.
+- Used strictly for operational response prioritization and civil defense resource staging.
+
+### 3. Upstream API Verification & Access Policies
+| Source Name | Provider | Protocol / Endpoint | Access Policy | Status in PRALAY AI |
+| :--- | :--- | :--- | :--- | :--- |
+| **USGS Earthquakes** | USGS Hazards Program | `earthquake.usgs.gov/earthquakes/feed/v1.0/` | Public Open (CORS) | ✅ **Live Ingestion** |
+| **NASA EONET v3** | NASA Earth Observatory | `eonet.gsfc.nasa.gov/api/v3/events` | Public Open (CORS) | ✅ **Live Ingestion** |
+| **Open-Meteo NWP** | Open-Meteo Weather | `api.open-meteo.com/v1/forecast` | Public Open (CORS) | ✅ **Live Atmospheric Sampling** |
+| **NOAA IBTrACS** | NOAA NCEI | NetCDF / WMO Archive | Public Open | ✅ **Verified Benchmark Archive** |
+| **IMD Warning API** | India Meteorological Dept | `api.imd.gov.in/api/v1/districtwarning` | Requires API Key (`HTTP 401`) | ⚠️ **Audited Key Requirement** (Seeded Archives) |
+| **NDEM Geoportal** | ISRO NRSC | `ndem.in` | Restricted (Nodal Officers) | 🔒 **Institutional Only** (Official Citations) |
+
+### 4. Record-Level Provenance & Diagnostic Probes
+- Every incident card and modal features an **audited provenance badge**: `OBSERVED`, `WARNING`, `FORECAST`, `ARCHIVE`, `MODEL`, or `DRILL`.
+- The in-app **Data Accuracy Audit View** provides a **Live Diagnostic Ping tool** that executes live HTTP requests against all upstream APIs in the user's browser, displaying real-time latency, HTTP status codes, and raw JSON payloads.
 
 ---
 

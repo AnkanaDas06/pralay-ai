@@ -35,14 +35,24 @@ export interface CycloneTrackPoint {
   stage?: string;
 }
 
+export type ProvenanceType = 
+  | 'sensor_observation' 
+  | 'official_warning' 
+  | 'official_forecast' 
+  | 'historical_archive' 
+  | 'experimental_model' 
+  | 'synthetic_drill';
+
 export interface Incident {
   id: string; // Composite deduplication key (e.g. usgs-us7000xxxx, ibtracs-2020136N10088)
   providerEventId?: string;
+  originalProviderId?: string;
   title: string;
   hazardType: HazardType;
   severity: SeverityLevel;
   status: EventStatus;
   lifecycle?: EventLifecycle; // 'active' | 'monitoring' | 'resolved' | 'historical'
+  provenanceType?: ProvenanceType;
   location: string;
   country: string;
   state?: string;
@@ -50,6 +60,9 @@ export interface Incident {
   region: string;
   coordinates: Coordinates;
   timestamp: string; // ISO string (start or observed time)
+  observationTime?: string; // Actual time of physical sensor observation
+  forecastIssueTime?: string; // Time forecast model or warning was issued
+  forecastValidUntil?: string; // Expiration or validity window of warning
   startDate?: string; // ISO string
   endDate?: string; // ISO string (if resolved or concluded)
   magnitudeOrIntensity?: string; // e.g., "M 7.8", "Cat 5 (260 km/h)", "Rainfall 240mm"
@@ -63,6 +76,8 @@ export interface Incident {
   source: string;
   sourceUrl: string;
   verificationStatus: 'verified_official' | 'automated_sensor' | 'preliminary' | 'simulated_demo';
+  dataUncertaintyNotes?: string;
+  missingFields?: string[];
   description: string;
   safetyGuidance: string[];
   lastUpdated: string;

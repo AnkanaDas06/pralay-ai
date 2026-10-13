@@ -38,6 +38,7 @@ import { RiskAnalyticsView } from './components/views/RiskAnalyticsView';
 import { IndiaCommandView } from './components/views/IndiaCommandView';
 import { EmergencyDirectoryView } from './components/views/EmergencyDirectoryView';
 import { AboutSourcesView } from './components/views/AboutSourcesView';
+import { DataAccuracyAuditView } from './components/views/DataAccuracyAuditView';
 import { SettingsView } from './components/views/SettingsView';
 
 export function App() {
@@ -182,24 +183,29 @@ export function App() {
 
   // Simulate incoming critical alert (Hackathon Feature)
   const handleSimulateIncomingAlert = () => {
-    const simId = `sim-crit-${Date.now()}`;
+    const simId = `sim-drill-${Date.now()}`;
     const simIncident: Incident = {
       id: simId,
-      title: 'URGENT: M 7.3 Undersea Seismic Rupture - Nicobar Arc',
+      title: '[TRAINING DRILL] M 7.3 Undersea Seismic Rupture Simulation - Nicobar Arc',
       hazardType: 'earthquake',
       severity: 'critical',
       status: 'official_warning',
+      provenanceType: 'synthetic_drill',
       location: 'Great Nicobar Island, Andaman & Nicobar Union Territory',
       country: 'India',
       region: 'South Asia',
       coordinates: { lat: 7.15, lng: 93.75, depthKm: 24 },
       timestamp: new Date().toISOString(),
-      magnitudeOrIntensity: 'M 7.3 • Depth 24km',
+      observationTime: new Date().toISOString(),
+      originalProviderId: 'DRILL-NICOBAR-2026',
+      dataUncertaintyNotes: 'SYNTHETIC TRAINING DRILL: Pre-scripted emergency response exercise scenario. Not a real physical seismic rupture.',
+      missingFields: ['Real-time focal mechanism tensor (simulated exercise)'],
+      magnitudeOrIntensity: 'M 7.3 (Simulated) • Depth 24km',
       impactRadiusKm: 240,
-      source: 'INCOIS Tsunami Warning Center & USGS Priority Telemetry',
+      source: 'PRALAY Drill Engine (INCOIS Tsunami Warning Benchmark)',
       sourceUrl: 'https://incois.gov.in',
       verificationStatus: 'simulated_demo',
-      description: 'Major subduction thrust event registered by deep ocean pressure sensors. Regional coastal inundation watch initiated for Andaman Sea coastal belts.',
+      description: 'Major subduction thrust event simulated for civil protection drill. Coastal inundation readiness exercise for Andaman Sea coastal belts.',
       safetyGuidance: [
         'Move inland and seek higher ground immediately if near coast.',
         'Stay clear of ports, harbor docks, and estuarine channels.',
@@ -207,6 +213,7 @@ export function App() {
         'Follow instructions issued by Andaman & Nicobar Disaster Management Directorate.'
       ],
       lastUpdated: new Date().toISOString(),
+      lastSyncTime: new Date().toISOString(),
       isDemo: true,
     };
 
@@ -411,6 +418,12 @@ export function App() {
             {activeTab === 'resources' && (
               <EmergencyDirectoryView
                 onFocusMap={handleFocusMap}
+              />
+            )}
+
+            {activeTab === 'audit' && (
+              <DataAccuracyAuditView
+                incidents={incidents}
               />
             )}
 

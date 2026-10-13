@@ -6,6 +6,7 @@ import {
   DataSourceStatus 
 } from '../types/disaster';
 import { DEMO_INCIDENTS } from '../data/demoIncidents';
+import { HISTORICAL_DISASTER_SEEDS } from '../data/historicalSeeds';
 
 const DB_NAME = 'pralay_historical_db';
 const STORE_NAME = 'disasters';
@@ -92,25 +93,45 @@ export async function fetchDisastersFromDb(filters: Partial<HistoricalFilterStat
     }
     throw new Error('Invalid database response');
   } catch (err) {
-    console.warn('Backend API unavailable, falling back to IndexedDB persistent store:', err);
-    // Fallback to IndexedDB persistent cache
+    console.warn('Backend API unavailable, querying local verified historical database & IndexedDB:', err);
+    // Combine IndexedDB cached live events with verified historical archive seeds
     const cached = await getRecordsFromIndexedDb();
-    if (cached.length > 0) {
-      let filtered = cached;
-      if (filters.searchQuery) {
-        const q = filters.searchQuery.toLowerCase();
-        filtered = filtered.filter(d => d.title.toLowerCase().includes(q) || d.location.toLowerCase().includes(q));
-      }
-      if (filters.hazardTypes && filters.hazardTypes.length > 0) {
-        filtered = filtered.filter(d => filters.hazardTypes!.includes(d.hazardType));
-      }
-      if (filters.severities && filters.severities.length > 0) {
-        filtered = filtered.filter(d => filters.severities!.includes(d.severity));
-      }
-      return { disasters: filtered, count: filtered.length };
+    const sourceRecords = cached.length > 0 ? cached : HISTORICAL_DISASTER_SEEDS;
+
+    let filtered = [...sourceRecords];
+
+    if (filters.searchQuery) {
+      const q = filters.searchQuery.toLowerCase();
+      filtered = filtered.filter(d => 
+        d.title.toLowerCase().includes(q) || 
+        d.location.toLowerCase().includes(q) ||
+        d.country.toLowerCase().includes(q)
+      );
     }
-    // Final emergency fallback to demo
-    return { disasters: DEMO_INCIDENTS, count: DEMO_INCIDENTS.length };
+    if (filters.hazardTypes && filters.hazardTypes.length > 0) {
+      filtered = filtered.filter(d => filters.hazardTypes!.includes(d.hazardType));
+    }
+    if (filters.severities && filters.severities.length > 0) {
+      filtered = filtered.filter(d => filters.severities!.includes(d.severity));
+    }
+    if (filters.lifecycles && filters.lifecycles.length > 0) {
+      filtered = filtered.filter(d => d.lifecycle && filters.lifecycles!.includes(d.lifecycle));
+    }
+    if (filters.country && filters.country !== 'All') {
+      filtered = filtered.filter(d => d.country.toLowerCase().includes(filters.country!.toLowerCase()));
+    }
+    if (filters.startDate) {
+      filtered = filtered.filter(d => d.timestamp >= filters.startDate!);
+    }
+    if (filters.endDate) {
+      filtered = filtered.filter(d => d.timestamp <= filters.endDate!);
+    }
+
+    const limit = filters.limit || 250;
+    const offset = filters.offset || 0;
+    const paginated = filtered.slice(offset, offset + limit);
+
+    return { disasters: paginated, count: filtered.length };
   }
 }
 
@@ -230,6 +251,24 @@ function computeStatsLocally(records: Incident[]): HistoricalStatsResult {
     count,
   }));
 
+  const timelineMap: Record<string, { count: number; earthquakes: number; cyclones: number; floods: number; wildfires: number; other: number }> = {};
+  for (const r of records) {
+    const year = r.timestamp ? r.timestamp.substring(0, 4) : '2026';
+    if (!timelineMap[year]) {
+      timelineMap[year] = { count: 0, earthquakes: 0, cyclones: 0, floods: 0, wildfires: 0, other: 0 };
+    }
+    timelineMap[year].count++;
+    if (r.hazardType === 'earthquake') timelineMap[year].earthquakes++;
+    else if (r.hazardType === 'cyclone') timelineMap[year].cyclones++;
+    else if (r.hazardType === 'flood') timelineMap[year].floods++;
+    else if (r.hazardType === 'wildfire') timelineMap[year].wildfires++;
+    else timelineMap[year].other++;
+  }
+
+  const timeline = Object.entries(timelineMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, counts]) => ({ date, ...counts }));
+
   return {
     totalEvents: records.length,
     activeCount,
@@ -245,6 +284,6 @@ function computeStatsLocally(records: Incident[]): HistoricalStatsResult {
       { severity: 'moderate', count: moderateCount },
       { severity: 'low', count: lowCount },
     ],
-    timeline: [],
+    timeline,
   };
 }

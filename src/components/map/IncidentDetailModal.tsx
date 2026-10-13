@@ -6,7 +6,12 @@ import {
   ShieldAlert, 
   MapPin, 
   CheckCircle2, 
-  Activity
+  Activity,
+  Database,
+  Clock,
+  AlertTriangle,
+  Info,
+  CheckCheck
 } from 'lucide-react';
 
 interface IncidentDetailModalProps {
@@ -29,12 +34,48 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
     low: 'text-emerald-300 bg-emerald-950/80 border-emerald-500/60 font-bold',
   }[incident.severity];
 
-  const statusLabel = {
-    observed_event: 'Observed Sensor Event',
-    official_warning: 'Official Warning Bulletin',
-    model_risk_estimate: 'Model Risk Estimate',
-    experimental_prediction: 'Experimental Prediction',
-  }[incident.status];
+  const getProvenanceBadge = () => {
+    switch (incident.provenanceType) {
+      case 'sensor_observation':
+        return {
+          label: 'Direct Sensor Observation',
+          bg: 'bg-cyan-950/80 text-cyan-300 border-cyan-500/60',
+          desc: 'Automated physical telemetry from seismic or satellite instruments.',
+        };
+      case 'official_warning':
+        return {
+          label: 'Official Warning Bulletin',
+          bg: 'bg-red-950/80 text-red-300 border-red-500/60',
+          desc: 'Issued by national civil protection or meteorological agency.',
+        };
+      case 'official_forecast':
+        return {
+          label: 'Official Forecast Model',
+          bg: 'bg-blue-950/80 text-blue-300 border-blue-500/60',
+          desc: 'Atmospheric numerical weather or trajectory prediction.',
+        };
+      case 'historical_archive':
+        return {
+          label: 'Historical Official Archive',
+          bg: 'bg-purple-950/80 text-purple-300 border-purple-500/60',
+          desc: 'Archived benchmark record validated against post-disaster surveys.',
+        };
+      case 'synthetic_drill':
+        return {
+          label: 'Synthetic Training Drill',
+          bg: 'bg-amber-950/80 text-amber-300 border-amber-500/60',
+          desc: 'Simulated exercise scenario generated for offline stress-testing.',
+        };
+      default:
+        return {
+          label: incident.status.replace('_', ' ').toUpperCase(),
+          bg: 'bg-slate-900 text-slate-300 border-slate-700',
+          desc: 'Operational multi-hazard intelligence entry.',
+        };
+    }
+  };
+
+  const prov = getProvenanceBadge();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -52,12 +93,12 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
               <span className="px-2 py-0.5 text-xs font-mono uppercase bg-[#060b18] text-slate-300 rounded border border-blue-900/40 font-medium">
                 {incident.hazardType}
               </span>
-              <span className="px-2 py-0.5 text-xs font-mono text-slate-400 bg-[#060b18] rounded border border-blue-900/40">
-                {statusLabel}
+              <span className={`px-2 py-0.5 text-xs font-mono uppercase rounded border ${prov.bg}`}>
+                {prov.label}
               </span>
               {incident.isDemo && (
                 <span className="px-2 py-0.5 text-xs font-bold bg-amber-950/70 text-amber-300 border border-amber-500/50 rounded font-mono">
-                  DEMO EVENT
+                  DEMO SCENARIO
                 </span>
               )}
             </div>
@@ -102,9 +143,9 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
               </span>
             </div>
             <div>
-              <span className="text-slate-400 block text-[11px]">TIMESTAMP</span>
-              <span className="text-slate-300">
-                {new Date(incident.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              <span className="text-slate-400 block text-[11px]">OBSERVED TIME</span>
+              <span className="text-slate-300 truncate block">
+                {new Date(incident.observationTime || incident.timestamp).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
               </span>
             </div>
           </div>
@@ -118,6 +159,99 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
             <p className="text-slate-200 leading-relaxed bg-[#060b18] p-3.5 rounded-xl border border-blue-900/40">
               {incident.description}
             </p>
+          </div>
+
+          {/* Dedicated Data Provenance & Scientific Audit Panel (Step 2 Requirement) */}
+          <div className="p-4 rounded-xl bg-[#070e22] border border-cyan-800/40 shadow-inner space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Database className="w-4 h-4 text-cyan-400" />
+                <h4 className="text-xs font-bold uppercase tracking-wider text-white font-mono">
+                  Data Provenance & Scientific Audit Panel
+                </h4>
+              </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-600/50 font-bold">
+                AUDITED RECORD
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs font-mono">
+              <div className="p-2.5 rounded-lg bg-[#060b18] border border-blue-900/40">
+                <span className="text-slate-400 text-[10px] block uppercase font-medium">Original Data Provider</span>
+                <span className="text-white font-semibold font-sans block mt-0.5">{incident.source}</span>
+                <span className="text-[11px] text-cyan-400 block truncate mt-0.5">
+                  ID: {incident.originalProviderId || incident.providerEventId || incident.id}
+                </span>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-[#060b18] border border-blue-900/40">
+                <span className="text-slate-400 text-[10px] block uppercase font-medium">Epistemic Status</span>
+                <span className="text-emerald-400 font-semibold font-sans block mt-0.5">{prov.label}</span>
+                <span className="text-[10px] text-slate-400 block mt-0.5 font-sans leading-tight">
+                  {prov.desc}
+                </span>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-[#060b18] border border-blue-900/40">
+                <span className="text-slate-400 text-[10px] block uppercase font-medium">Observation / Issue Time</span>
+                <span className="text-slate-200 block mt-0.5">
+                  Observed: {new Date(incident.observationTime || incident.timestamp).toLocaleString()}
+                </span>
+                {incident.forecastIssueTime && (
+                  <span className="text-[10px] text-slate-400 block mt-0.5">
+                    Valid Window: {new Date(incident.forecastIssueTime).toLocaleDateString()} &mdash; {incident.forecastValidUntil ? new Date(incident.forecastValidUntil).toLocaleDateString() : 'Active'}
+                  </span>
+                )}
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-[#060b18] border border-blue-900/40">
+                <span className="text-slate-400 text-[10px] block uppercase font-medium">Last Synchronized</span>
+                <span className="text-slate-200 block mt-0.5">
+                  {new Date(incident.lastSyncTime || incident.lastUpdated).toLocaleString()}
+                </span>
+                <span className="text-[10px] text-slate-400 block mt-0.5">
+                  Verification: <strong className="text-cyan-300 font-sans">{incident.verificationStatus.replace('_', ' ')}</strong>
+                </span>
+              </div>
+            </div>
+
+            {/* Uncertainty and Missing Fields Disclosures */}
+            <div className="p-3 rounded-lg bg-[#060b18] border border-blue-900/40 space-y-1.5 text-xs">
+              <div className="flex items-center gap-1.5 text-slate-300 font-semibold">
+                <Info className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Epistemic Boundary & Uncertainty Notes:</span>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-relaxed font-sans">
+                {incident.dataUncertaintyNotes || 'Direct observation recorded by physical sensor network. Earthquakes and geodynamic events cannot be predicted in advance with deterministic certainty.'}
+              </p>
+
+              {/* Casualties / Population Status */}
+              <div className="flex items-center gap-3 pt-1 text-[11px] font-mono text-slate-400">
+                <span>
+                  Casualties: <strong className="text-white">{incident.casualties !== undefined && incident.casualties !== null ? incident.casualties.toLocaleString() : 'Not Officially Surveyed'}</strong>
+                </span>
+                <span>•</span>
+                <span>
+                  Affected Pop: <strong className="text-white">{incident.affectedPopulation !== undefined && incident.affectedPopulation !== null ? incident.affectedPopulation.toLocaleString() : 'Unspecified'}</strong>
+                </span>
+              </div>
+            </div>
+
+            {/* Clickable link to official source */}
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-[11px] text-slate-400 font-sans">
+                Verify original government / agency record:
+              </span>
+              <a
+                href={incident.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:text-white bg-blue-950/80 hover:bg-blue-900/80 border border-cyan-500/50 rounded-lg transition shadow-xs"
+              >
+                <span>Open Upstream Agency Source</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
           </div>
 
           {/* Actionable Official Guidance Checklist */}
@@ -135,29 +269,12 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
               ))}
             </div>
           </div>
-
-          {/* Provenance & Source Attribution */}
-          <div className="p-3 bg-[#060b18] rounded-xl border border-blue-900/40 text-xs text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <span className="block font-semibold text-white">Data Source: {incident.source}</span>
-              <span className="text-[11px] text-slate-400">Last Synchronized: {new Date(incident.lastUpdated).toLocaleString()}</span>
-            </div>
-            <a
-              href={incident.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-blue-300 hover:text-white bg-blue-950/60 hover:bg-blue-900/60 border border-blue-500/50 rounded-lg transition self-start sm:self-auto shadow-xs"
-            >
-              <span>View Official Report</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
         </div>
 
         {/* Footer actions */}
         <div className="flex items-center justify-between p-4 border-t border-blue-900/40 bg-[#0e1935]">
           <div className="text-xs text-slate-400 font-mono">
-            ID: <span className="text-slate-300">{incident.id}</span>
+            System ID: <span className="text-slate-300">{incident.id}</span>
           </div>
           <div className="flex items-center gap-2">
             {onFocusMap && (

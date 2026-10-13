@@ -141,7 +141,22 @@ export const IncidentFeed: React.FC<IncidentFeedProps> = ({
                       {getHazardIcon(incident.hazardType)}
                       <span className="capitalize">{incident.hazardType}</span>
                     </span>
-                    {incident.isDemo && (
+                    {incident.provenanceType === 'sensor_observation' && (
+                      <span className="px-1.5 py-0.2 text-[9px] font-bold bg-cyan-950/60 text-cyan-300 border border-cyan-500/40 rounded font-mono">
+                        OBSERVED
+                      </span>
+                    )}
+                    {incident.provenanceType === 'historical_archive' && (
+                      <span className="px-1.5 py-0.2 text-[9px] font-bold bg-purple-950/60 text-purple-300 border border-purple-500/40 rounded font-mono">
+                        ARCHIVE
+                      </span>
+                    )}
+                    {incident.provenanceType === 'synthetic_drill' && (
+                      <span className="px-1.5 py-0.2 text-[9px] font-bold bg-amber-950/60 text-amber-300 border border-amber-500/40 rounded font-mono">
+                        DRILL
+                      </span>
+                    )}
+                    {incident.isDemo && !incident.provenanceType && (
                       <span className="px-1 py-0.2 text-[9px] font-bold bg-amber-950/60 text-amber-300 border border-amber-500/40 rounded font-mono">
                         DEMO
                       </span>

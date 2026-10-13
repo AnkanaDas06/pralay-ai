@@ -58,15 +58,69 @@ export const RiskAnalyticsView: React.FC<RiskAnalyticsViewProps> = ({
     { name: 'Low Risk', value: incidents.filter(i => i.severity === 'low').length, color: '#059669' },
   ].filter(d => d.value > 0);
 
-  // 4. Simulated 24h risk trendline based on current score
-  const trendData = [
-    { hour: '20h ago', score: Math.max(10, riskAssessment.overallScore - 14) },
-    { hour: '16h ago', score: Math.max(12, riskAssessment.overallScore - 9) },
-    { hour: '12h ago', score: Math.max(15, riskAssessment.overallScore - 4) },
-    { hour: '8h ago', score: Math.max(18, riskAssessment.overallScore + 2) },
-    { hour: '4h ago', score: Math.max(15, riskAssessment.overallScore - 2) },
-    { hour: 'Current', score: riskAssessment.overallScore },
-  ];
+  // 4. Temporal event aggregation computed from actual incident timestamps
+  const trendData = React.useMemo(() => {
+    const now = Date.now();
+    const intervals = [
+      { hour: '20h ago', minAge: 20 * 3600000, maxAge: 24 * 3600000 },
+      { hour: '16h ago', minAge: 16 * 3600000, maxAge: 20 * 3600000 },
+      { hour: '12h ago', minAge: 12 * 3600000, maxAge: 16 * 3600000 },
+      { hour: '8h ago',  minAge: 8 * 3600000,  maxAge: 12 * 3600000 },
+      { hour: '4h ago',  minAge: 4 * 3600000,  maxAge: 8 * 3600000 },
+      { hour: 'Current', minAge: 0,            maxAge: 4 * 3600000 },
+    ];
+
+    const recentIncidents = incidents.filter(i => {
+      const t = new Date(i.timestamp).getTime();
+      return !isNaN(t) && (now - t) <= 24 * 3600000 && (now - t) >= 0;
+    });
+
+    if (recentIncidents.length > 0) {
+      return intervals.map(inv => {
+        const bucketEvents = recentIncidents.filter(i => {
+          const age = now - new Date(i.timestamp).getTime();
+          return age >= inv.minAge && age < inv.maxAge;
+        });
+        const score = bucketEvents.reduce((acc, curr) => {
+          const weight = curr.severity === 'critical' ? 25 : curr.severity === 'high' ? 18 : curr.severity === 'moderate' ? 10 : 5;
+          return acc + weight;
+        }, 12);
+        return {
+          hour: inv.hour,
+          score: Math.min(100, score),
+        };
+      });
+    }
+
+    // Historical records chronological distribution
+    const sorted = [...incidents].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    if (sorted.length >= 6) {
+      const chunkSize = Math.max(1, Math.floor(sorted.length / 6));
+      return Array.from({ length: 6 }).map((_, idx) => {
+        const chunk = sorted.slice(idx * chunkSize, (idx + 1) * chunkSize);
+        const sampleDate = chunk[chunk.length - 1]?.timestamp 
+          ? new Date(chunk[chunk.length - 1].timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+          : `T-${5 - idx}`;
+        const chunkScore = chunk.reduce((acc, curr) => {
+          const weight = curr.severity === 'critical' ? 28 : curr.severity === 'high' ? 20 : curr.severity === 'moderate' ? 12 : 5;
+          return acc + weight;
+        }, 15);
+        return {
+          hour: idx === 5 ? 'Current' : sampleDate,
+          score: Math.min(100, Math.round(chunkScore / Math.max(1, chunk.length) * 2.5)),
+        };
+      });
+    }
+
+    return [
+      { hour: '20h ago', score: Math.max(15, riskAssessment.overallScore - 12) },
+      { hour: '16h ago', score: Math.max(15, riskAssessment.overallScore - 8) },
+      { hour: '12h ago', score: Math.max(15, riskAssessment.overallScore - 5) },
+      { hour: '8h ago',  score: Math.max(15, riskAssessment.overallScore - 2) },
+      { hour: '4h ago',  score: Math.max(15, riskAssessment.overallScore - 1) },
+      { hour: 'Current', score: riskAssessment.overallScore },
+    ];
+  }, [incidents, riskAssessment.overallScore]);
 
   const getScoreBadgeColor = (level: string) => {
     switch (level) {
